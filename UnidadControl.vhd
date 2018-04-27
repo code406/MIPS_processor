@@ -1,0 +1,54 @@
+library IEEE;
+use IEEE.std_logic_1164.ALL;
+use IEEE.std_LOGIC_arith.ALL;
+use IEEE.std_logic_signed.ALL;
+
+entitv UnidadControl is
+	Port (
+		OpCode : in std_logic_vector (5 downto 0);
+		Funct : in std_logic_vector (5 downto 0);
+		MemToReg : out std_logic;
+		MemWrite : out std_logic;
+		Branch : out std_logic;
+		ALUControl: out std_logic_vector (2 downto 0);
+		ALUSrc : out std_logic;
+		RegDest : out std_logic;
+		RegWrite : out std_logic;
+		ExtCero : out std_logic;
+		Jump : out std_logic
+	);
+end UnidadControl;
+
+architecture Practica of UnidadControl is
+  
+	signal v: std_logic_vector (10 downto 0);
+
+begin
+  with OpCode select
+  -- MemToReg	MemWrite	Branch	ALUControl	ALUSrc	RegDest	RegWrite	ExtCero	Jump
+    v<= "00000000011" when "000010", --j
+        "00111000010" when "000100", --beq
+        "00001010100" when "001000", --addi
+        "00001010100" when "001100", --andi
+        "00001010100" when "001101", --ori
+        "10001010110" when "100011", --lw
+        "01001010010" when "101011", --sw
+        "00111000010" when "001010", --slti
+		"" 			  when others;	 --NO ME ANDES PICOTEANDO
+  
+  RType: process(OpCode, Funct) 
+  begin
+	if OpCode="000000" then
+		case Funct is
+			when "100100" => v <= "00001001100"; --and
+			when "100000" => v <= "00001001100"; --add
+			when "100010" => v <= "00011001100"; --sub
+			when "100111" => v <= "00000101100"; --nor
+			when "100101" => v <= "00000101100"; --or
+			when "101010" => v <= "00011101100"; --slt
+			when others   =>
+		end case;
+	end if;
+  end process RType;
+  
+end Practica;

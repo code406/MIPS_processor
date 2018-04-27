@@ -1,0 +1,95 @@
+library IEEE;
+use IEEE.std_logic_1164.all;
+use IEEE.std_logic_unsigned.all;
+use IEEE.std_logic_arith.all;
+
+entity RegsMIPS is
+	port (
+		Clk : in std_logic; -- Reloj
+		NRst : in std_logic; -- Reset asíncrono a nivel bajo
+		A1 : in std_logic_vector(4 downto 0); -- registro a leer
+		Rd1 : out std_logic_vector(31 downto 0); -- copia del valor de A1
+		A2 : in std_logic_vector(4 downto 0); -- otro registro a leer
+		Rd2 : out std_logic_vector(31 downto 0); -- copia del valor de A2
+		A3 : in std_logic_vector(4 downto 0); -- registro sobre el que escribir el dato Wd3
+		Wd3 : in std_logic_vector(31 downto 0); -- Dato de entrada
+		We3 : in std_logic -- Habilitación de escritura
+	); 
+end RegsMIPS;
+
+architecture Practica of RegsMIPS is
+
+	-- Tipo para almacenar los registros
+	type regs_t is array (0 to 31) of std_logic_vector(31 downto 0);
+
+	-- Esta es la señal que contiene los registros. El acceso es de la
+	-- siguiente manera: regs(i) acceso al registro i, donde i es
+	-- un entero. Para convertir del tipo std_logic_vector a entero se
+	-- hace de la siguiente manera: conv_integer(slv), donde
+	-- slv es un elemento de tipo std_logic_vector
+
+	signal regs : regs_t;
+
+begin  -- PRACTICA
+
+	------------------------------------------------------
+	-- Escritura del registro Wd (SINCRONA)
+	------------------------------------------------------
+	-- Escribe el contenido de Wd3 en el registro indicado
+	-- por A3 cuando hay flanco de subida de reloj y
+	-- la señal de habilitación de escritura We3 está activa.
+	-- Tiene reset asíncrono. Si está habilitado el reset, 
+	-- todos los registros se inicializan a valor 0
+
+	process(NRst, Clk)
+	begin
+		if NRst='0' then
+			for i in 0 to 31 loop
+				regs(i) <= (others => '0');
+			end loop;
+		elsif rising_edge(Clk) then
+			if We3 = '1' then
+				for i in () loop
+					if regs(i) = regs(conv_integer(A3)) then
+						regs(i) <= Wd3;
+				end loop;
+			end if;
+		end if;
+	end process;
+			
+	------------------------------------------------------
+	-- Lectura del registro Rd1 (ASINCRONA)
+	------------------------------------------------------
+	-- Lee en Rd1 el registro indicado por A1. 
+	-- La lectura del registro R0 siempre devuelve 0.
+
+	process(A1, regs(conv_integer(A1)))
+	begin
+		for i in (0 to 31) loop
+			if regs(i) = regs(conv_integer(A1)) then
+				if i = '0' then
+					Rd1 <= (others '0');
+				else
+					Rd1 <= regs(conv_integer(A1));
+				end if;
+	end process;
+			
+	------------------------------------------------------
+	-- Lectura del registro Rd2 (ASINCRONA)
+	------------------------------------------------------
+	-- Lee en Rd2 el registro indicado por A2. 
+	-- La lectura del registro R0 siempre devuelve 0.
+
+	process(A2, regs(conv_integer(A2)))
+	begin
+		for i in (0 to 31) loop
+			if regs(i) = regs(conv_integer(A2)) then
+				if i = '0' then
+					Rd2 <= (others '0');
+				else
+					Rd2 <= regs(conv_integer(A2));
+				end if;
+	end process;
+
+end Practica;
+
