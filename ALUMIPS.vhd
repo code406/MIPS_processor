@@ -4,7 +4,7 @@ use IEEE.std_LOGIC_arith.ALL;
 use IEEE.std_logic_signed.ALL;
 
 entity ALUMIPS is
-	Port (
+	port (
 		Op1 : in std_logic_vector (31 downto 0);
 		Op2 : in std_logic_vector (31 downto 0);
 		ALUControl : in std_logic_vector (2 downto 0);
