@@ -11,8 +11,25 @@ entity MicroMIPS is
 end MicroMIPS;
 
 architecture Practica of MicroMIPS is
-	signal uc1, uc2, uc3, uc4, uc5, uc6, uc7, uc8, uc9, mp1, : std_logic;
-	
+	signal uc1, uc2, uc3, uc5, uc6, uc7, uc8, uc9, am2, pcsrc: std_logic;
+	signal uc4: std_logic_vector(2 downto 0);
+	signal mp1: std_logic_vector(31 downto 0);
+	signal am1: std_logic_vector(31 downto 0);
+	signal mpd1: std_logic_vector(31 downto 0);
+	signal mux1o: std_logic_vector(31 downto 0);
+	signal mux2o: std_logic_vector(31 downto 0);
+	signal mux3o: std_logic_vector(4 downto 0);
+	signal mux4o: std_logic_vector(31 downto 0);
+	signal mux5o: std_logic_vector(31 downto 0);
+	signal mux6o: std_logic_vector(31 downto 0);
+	signal dout: std_logic_vector(31 downto 0);
+	signal sum1: std_logic_vector(31 downto 0);
+	signal sum2: std_logic_vector(31 downto 0);
+	signal desp1: std_logic_vector(27 downto 0);
+	signal desp2: std_logic_vector(31 downto 0);
+	signal exts: std_logic_vector(31 downto 0);
+	signal extc: std_logic_vector(31 downto 0);
+
 	component UnidadControl 
 		port (
 		OpCode : in std_logic_vector (5 downto 0);
@@ -90,8 +107,40 @@ begin
 	u2: MemProgMIPS
 	port map (
 	MemProgAddr => dout,
+	MemProgData => mp1,
+	);
 	
-	);	
+	u3: RegsMIPS
+		port map (
+			Clk => Clk,
+			NRst => 
+			A1 => mp1(25 downto 21),
+			Rd1 => rm1,
+			A2 => mp1(20 downto 16),
+			Rd2 => rm2,
+			A3 => mux3o,
+			Wd3 => mux6o,
+			We3 => uc7,
+	);
+
+	u4: ALUMips
+		port map(
+			Op1 => rm1,
+			Op2 => mux5o,
+			ALUControl => uc4,
+			Res => am1, 
+			Z => am2,
+		);
+
+	u5: MemProgData
+		port map(
+			Clk => Clk,
+			NRst => 
+			MemDataAddr => am1,
+			MemDataDataWrite => rm2,
+			MemDataWE => uc2,
+			MemDataDataRead => mpd1,
+		);
 	
 
 	mux1o <= sum2 when pcsrc = 1 else
@@ -108,6 +157,25 @@ begin
 	sum1 <= dout + x"00000004";
 	sum2 <= desp2 + sum1;
 	
+	desp2 <= mp1(25 downto 0) & "00";
 	desp2 <= exts(29 downto 0) & "00";
-	exts <= --SEGUIR
+	exts <= mp1(15) & mp1(15) & mp1(15) & mp1(15) & mp1(15) & mp1(15) & mp1(15) & mp1(15) & mp1(15) & mp1(15) & mp1(15) & mp1(15) & mp1(15) & mp1(15) & mp1(15) & mp1(15) & mp1(15 downto 0);
+
+	extc <= "0000000000000000" & mp1(15 downto 0);
+	
+	mux3o <= mp1(20 downto 16) when uc6 = 0 else
+			 		 mp1(15 downto 11); 
+
+	mux4o <= exts when uc8 = 0 else
+			 		 extc;
+
+	mux5o <= rm2 when uc5 = 0 else
+			 		 mux4o; 
+ 
+	mux6o <= am1 when uc1 = 0 else
+			 		 mpd1;
+
+	
+	pcsrc <= uc3 and am2;
+
 end Practica;
