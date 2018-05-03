@@ -123,7 +123,7 @@ begin
 			We3 => uc7
 	);
 
-	u3: ALUMips
+	u4: ALUMips
 		port map(
 			Op1 => rm1,
 			Op2 => mux5o,

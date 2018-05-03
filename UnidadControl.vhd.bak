@@ -34,7 +34,7 @@ begin
         "10001010110" when "100011", --lw
         "01001010010" when "101011", --sw
         "00111000010" when "001010", --slti
-		    "00000000000" when others;
+		"" 			  when others;	 --NO ME ANDES PICOTEANDO
   
   RType: process(OpCode, Funct) 
   begin

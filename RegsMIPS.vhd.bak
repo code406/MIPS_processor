@@ -51,20 +51,41 @@ begin  -- PRACTICA
 			regs(conv_integer(A3))<= Wd3;
 		end if;
 	end process;
+	
+	Rd1 <= regs(conv_integer(A1));
+	Rd2 <= regs(conv_integer(A2));
 			
 	------------------------------------------------------
 	-- Lectura del registro Rd1 (ASINCRONA)
 	------------------------------------------------------
 	-- Lee en Rd1 el registro indicado por A1. 
 	-- La lectura del registro R0 siempre devuelve 0.
-  Rd1 <= regs(conv_integer(A1));
+
+	process(A1, regs(conv_integer(A1)))
+	begin
+	 Rd1 <= (others => '0');
+	 for i in 1 to 31 loop
+		  if regs(i) = regs(conv_integer(A1)) then
+				 Rd1 <= regs(conv_integer(A1));
+		  end if;
+	 end loop;
+	end process;
 			
 	------------------------------------------------------
 	-- Lectura del registro Rd2 (ASINCRONA)
 	------------------------------------------------------
 	-- Lee en Rd2 el registro indicado por A2. 
 	-- La lectura del registro R0 siempre devuelve 0.
-  Rd2 <= regs(conv_integer(A2));
+
+	process(A2, regs(conv_integer(A2)))
+	begin
+    	 Rd2 <= (others => '0');
+	 for i in 1 to 31 loop
+		  if regs(i) = regs(conv_integer(A2)) then
+				 Rd2 <= regs(conv_integer(A2));
+		  end if;
+	 end loop;
+	end process;
 
 end Practica;
 
